@@ -44,12 +44,16 @@ api.add_resource(Plants, '/plants')
 class PlantByID(Resource):
 
     def get(self, id):
-        plant = Plant.query.get_or_404(id)
+        plant = db.session.get(Plant, id)
+        if not plant:
+            return make_response(jsonify({"error": "Plant not found"}), 404)
         return make_response(jsonify(plant.to_dict()), 200)
 
     def patch(self, id):
         data = request.get_json()
-        plant = Plant.query.get_or_404(id)
+        plant = db.session.get(Plant, id)
+        if not plant:
+            return make_response(jsonify({"error": "Plant not found"}), 404)
 
         if 'is_in_stock' in data:
             plant.is_in_stock = data['is_in_stock']
@@ -59,7 +63,9 @@ class PlantByID(Resource):
         return make_response(jsonify(plant.to_dict()), 200)
 
     def delete(self, id):
-        plant = Plant.query.get_or_404(id)
+        plant = db.session.get(Plant, id)
+        if not plant:
+            return make_response(jsonify({"error": "Plant not found"}), 404)
         db.session.delete(plant)
         db.session.commit()
         return '', 204
